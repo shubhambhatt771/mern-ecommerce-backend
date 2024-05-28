@@ -43,7 +43,7 @@ jobs:
       run: |
         # Restart the Node.js server
         pm2 stop node-app || true
-        pm2 start server.js --name node-app --env production
+        pm2 start dist/app.js --name node-app --env production
 
     - name: Clean up
       run: |
