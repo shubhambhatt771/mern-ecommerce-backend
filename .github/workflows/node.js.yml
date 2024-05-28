@@ -1,0 +1,50 @@
+name: Deploy Node.js Backend
+
+on:
+  push:
+    branches: [ "main" ]  # Adjust to your branch
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    # - name: Copy Node.js files to EC2 instance
+    #   run: |
+    #     # Change directory to your Node.js project
+    #     cd /path/to/your/node-project
+
+    #     # Copy the project files to the EC2 instance
+    #     sudo cp -r . /home/ec2-user/node-app
+
+    # - name: Install dependencies on EC2 instance
+    #   run: |
+    #     # Connect to the EC2 instance and install dependencies
+    #     cd /home/ec2-user/node-app
+    #     npm ci
+
+    - name: Restart Node.js server
+      run: |
+        # Restart the Node.js server
+        pm2 stop node-app || true
+        pm2 start server.js --name node-app --env production
+
+    - name: Clean up
+      run: |
+        # Clean up any temporary files if necessary
